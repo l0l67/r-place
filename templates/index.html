@@ -3,6 +3,8 @@
 	<head>
 		<title>r/place</title>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		
 		<style>
 			.colorSelector {
 				display: flex;
@@ -18,7 +20,7 @@
 			.colorSelect:hover {
 				width: 25px;
 				height: 25px;
-				transform: scale(1.05, 1.05);
+				transform: scale(1.1, 1.1);
 			}
 			
 			.pixelGridContainer {
@@ -44,15 +46,32 @@
 				border: 1px dotted black;
 			}
 			
-			#timer {
-				display: flex;
-				flex-wrap: wrap;
-				justify-content: center;
+			.info {
+				text-align: center;
+			}
+			
+			.refresh {
+				width: 50px;
+				height: 50px;
+				cursor: pointer;
+				border: none;
+				border-radius: 25px;
+				background-color: transparent;
+				box-shadow: 0 6px 6px rgba(0, 0, 0, 0.6);
+			}
+			.refresh:hover {
+				transform: scale(0.9, 0.9);
+			}
+			.refresh:active {
+				transform: scale(1.1, 1.1);
 			}
 		</style>
 		
 		<script>
 			var canPlace = true;
+			var currentColor = "";
+			var timeout = 5000;
+			
 			function getGrid() {
 				$.ajax({
 					type:"GET",
@@ -76,13 +95,12 @@
 			function startTimer() {
 				canPlace = false;
 				var originalText = document.getElementById("timer").innerHTML;
-				var countDownDate = new Date().getTime() + 5000;
+				var countDownDate = new Date().getTime() + timeout;
 
 				var x = setInterval(function() {
 				  var now = new Date().getTime();
 
 				  var distance = countDownDate - now;
-
 				  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
 				  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
@@ -97,14 +115,13 @@
 			}
 			
 			function setColor(color) {
-				$.ajax({
-					type: 'POST',
-					url: "{{url_for('index')}}",
-					data: {'color': color},
-					success: function() {
-						getColors();
-					},
-				});
+				document.getElementById("btn-" + color).style.transform = "scale(1.25, 1.25)";
+				document.getElementById("btn-" + color).style.zIndex = "1";
+				if (currentColor != "") {
+					document.getElementById("btn-" + currentColor).style.transform = "scale(1, 1)";
+					document.getElementById("btn-" + currentColor).style.zIndex = "0";
+				}
+				currentColor = color;
 			}
 			
 			function setPixel(position) {
@@ -112,7 +129,7 @@
 					$.ajax({
 						type: 'POST',
 						url: "{{url_for('placePixel')}}",
-						data: {'place': String(position)},
+						data: {'place': String(position), 'color': String(currentColor)},
 						success: function() {
 							getGrid();
 							startTimer();
@@ -128,8 +145,13 @@
 		</script>
 	</head>
 	<body onload="startUp()">
-		<h1 id="timer">Place your next Tile</h1>
-		<br>
+		<div class="info">
+			<h1 id="timer">Place your next Tile</h1>
+			<br>
+			<button class="refresh" onclick="getGrid()"><i class="fa fa-refresh"></i></button>
+		</div>
+		
+		<br>		
 		
 		<div class="colorSelector"></div>
 
@@ -138,6 +160,5 @@
 		<div class="pixelGridContainer">
 			<div class="pixelGrid"></div>
 		</div>
-		
 	</body>
 </html> 

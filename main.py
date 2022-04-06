@@ -23,39 +23,30 @@ colors = [
     '#E4E4E4',
     '#FFFFFF'
 ]
-currentColor = colors[0]
 grid = []
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def index():
-    global grid, colors, currentColor, gridSize
-        
-    if request.method == 'POST':
-        value = request.form
-        print(value)
-        
-        if 'color' in value:
-            currentColor = value['color']
+    global grid, colors, gridSize
 
     return render_template('index.html', grid=grid, gridSize=gridSize)
 
 @app.route('/placePixel', methods=['POST'])
 def placePixel():
-    global grid, gridSize, currentColor
-    
-    grid[int(request.form.get('place'))][2] = currentColor
-            
+    global grid, gridSize
+        
+    grid[int(request.form.get('place'))][2] = request.form.get('color')
     return render_template('index.html', grid=grid, gridSize=gridSize)
 
-@app.route('/grid')
+@app.route('/grid', methods=['GET'])
 def getGrid():
     global grid, gridSize
     return render_template('grid.html', grid=grid, gridSize=gridSize)
 
-@app.route('/colors')
+@app.route('/colors', methods=['GET'])
 def getColors():
-    global colors, currentColor
-    return render_template('colors.html', colors=colors, currentColor=currentColor)
+    global colors
+    return render_template('colors.html', colors=colors)
     
     
     
