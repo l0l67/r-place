@@ -1,0 +1,4 @@
+{% for pixel in grid %}				
+	<input onclick="setPixel({{pixel[3]}})" style="color:{{pixel[2]}};background-color:{{pixel[2]}};grid-column:{{pixel[0]}}/{{pixel[0]}};grid-row:{{pixel[1]}}/{{pixel[1]}};" 
+		class="pixel" type="submit" value="{{pixel[3]}}" name="place"/>
+{% endfor %}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>r/place</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		<style>
+			.colorSelector {
+				display: flex;
+				flex-wrap: wrap;
+				margin: 20px;
+				justify-content: center;
+			}
+			.colorSelect {
+				width: 25px;
+				height: 25px;
+				border: none;
+			}
+			.colorSelect:hover {
+				width: 25px;
+				height: 25px;
+				transform: scale(1.05, 1.05);
+			}
+			
+			.pixelGridContainer {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+			}
+			
+			.pixelGrid {
+				position: absolute;				
+				display: grid;
+				grid-template-columns: repeat({{gridSize}}, auto);
+				gap: 0px 0px;
+				
+				border: 2px dotted black;
+			}
+			.pixel {
+				width: 25px;
+				height: 25px;
+				border: none;
+			}
+			.pixel:hover {
+				border: 1px dotted black;
+			}
+			
+			#timer {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+			}
+		</style>
+		
+		<script>
+			var canPlace = true;
+			function getGrid() {
+				$.ajax({
+					type:"GET",
+					url: "{{url_for('getGrid')}}",
+					success: function(response){
+						$(".pixelGrid").html(response);
+					},
+				});
+			}
+			
+			function getColors() {
+				$.ajax({
+					type:"GET",
+					url: "{{url_for('getColors')}}",
+					success: function(response){
+						$(".colorSelector").html(response);
+					},
+				});
+			}
+
+			function startTimer() {
+				canPlace = false;
+				var originalText = document.getElementById("timer").innerHTML;
+				var countDownDate = new Date().getTime() + 5000;
+
+				var x = setInterval(function() {
+				  var now = new Date().getTime();
+
+				  var distance = countDownDate - now;
+
+				  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+				  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+				  document.getElementById("timer").innerHTML = "Timeout " + minutes + ":" + seconds;
+
+				  if (distance < 0) {
+					clearInterval(x);
+					canPlace = true;
+					document.getElementById("timer").innerHTML = originalText;
+				  }
+				}, 1000);
+			}
+			
+			function setColor(color) {
+				$.ajax({
+					type: 'POST',
+					url: "{{url_for('index')}}",
+					data: {'color': color},
+					success: function() {
+						getColors();
+					},
+				});
+			}
+			
+			function setPixel(position) {
+				if (canPlace === true) {
+					$.ajax({
+						type: 'POST',
+						url: "{{url_for('placePixel')}}",
+						data: {'place': String(position)},
+						success: function() {
+							getGrid();
+							startTimer();
+						},
+					});
+				}
+			}
+			
+			function startUp() {
+				getGrid();
+				getColors();
+			}
+		</script>
+	</head>
+	<body onload="startUp()">
+		<h1 id="timer">Place your next Tile</h1>
+		<br>
+		
+		<div class="colorSelector"></div>
+
+		<br>
+		
+		<div class="pixelGridContainer">
+			<div class="pixelGrid"></div>
+		</div>
+		
+	</body>
+</html> 

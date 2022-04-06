@@ -1,0 +1,7 @@
+{% for color in colors %}
+	{% if color == currentColor %}
+		<button class="colorSelect" onclick="setColor('{{color}}')" style="background-color:{{color}};transform:scale(1.25, 1.25);" type="button" name="{{color}}"/>
+	{% else %}
+		<button class="colorSelect" onclick="setColor('{{color}}')" style="background-color:{{color}};" type="button" name="{{color}}"/>
+	{% endif %}
+{% endfor %}
