@@ -3,7 +3,7 @@ from flask import *
 app = Flask(__name__)
 
 
-gridSize = 25
+gridSize = 70
 
 colors = [
     '#820080',
@@ -47,9 +47,13 @@ def getGrid():
 def getColors():
     global colors
     return render_template('colors.html', colors=colors)
-    
-    
-    
+
+@app.errorhandler(404)
+def not_found(error):
+    return redirect(url_for('index'))
+
+
+
 def createGrid():
     global grid, gridSize
     
@@ -64,4 +68,4 @@ def createGrid():
 
 if __name__ == '__main__':
     createGrid()
-    app.run()
+    app.run(port=80)
