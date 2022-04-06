@@ -2,7 +2,6 @@
 <html>
 	<head>
 		<title>r/place</title>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 		
 		<style>
@@ -72,24 +71,14 @@
 			var currentColor = "";
 			var timeout = 5000;
 			
-			function getGrid() {
-				$.ajax({
-					type:"GET",
-					url: "{{url_for('getGrid')}}",
-					success: function(response){
-						$(".pixelGrid").html(response);
-					},
-				});
+			async function getGrid() {
+				const res = await fetch("{{url_for('getGrid')}}")
+				document.querySelector(".pixelGrid").innerHTML = await res.text();
 			}
-			
-			function getColors() {
-				$.ajax({
-					type:"GET",
-					url: "{{url_for('getColors')}}",
-					success: function(response){
-						$(".colorSelector").html(response);
-					},
-				});
+
+			async function getColors() {
+				const res = await fetch("{{url_for('getColors')}}");
+				document.querySelector('.colorSelector').innerHTML = await res.text();
 			}
 
 			function startTimer() {
@@ -124,17 +113,19 @@
 				currentColor = color;
 			}
 			
-			function setPixel(position) {
+			async function setPixel(position) {
 				if (canPlace === true) {
-					$.ajax({
-						type: 'POST',
-						url: "{{url_for('placePixel')}}",
-						data: {'place': String(position), 'color': String(currentColor)},
-						success: function() {
-							getGrid();
-							startTimer();
+
+					const res = await fetch("{{url_for('placePixel')}}", {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
 						},
+						body: `place=${position}&color=${currentColor}`,
 					});
+
+					getGrid();
+					startTimer();
 				}
 			}
 			
